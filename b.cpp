@@ -89,6 +89,20 @@ Node* deleteNode(Node* root, long long key){
     return root;
 }
 
+Node* next(Node* x){
+    if (x->right != nullptr){
+        return minValueNode(x->right);
+    }
+
+    Node *y = x->parent;
+    while (y != nullptr && x == y->right){
+        x = y;
+        y = y->parent;
+    }
+
+    return y;
+}
+
 int main(){
     char command[10];
     Node* root = nullptr;
@@ -113,6 +127,19 @@ int main(){
         } else if (!strcmp(command, "next")){
             long long x;
             cin >> x;
+
+            Node* res = minValueNode(root);
+            Node* ma = maxValueNode(root);
+            while (res->key <= x && res != ma){
+                res = next(res);
+            }
+            if (res->key <= x){
+                cout << "none";
+            } else {
+                cout << res->key;
+            }
+            cout << "\n";
+
         } else if (!strcmp(command, "prev")){
             long long x;
             cin >> x;
