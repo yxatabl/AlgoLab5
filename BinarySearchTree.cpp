@@ -21,6 +21,9 @@ class BST{
         if (root == nullptr) {
             return new Node(val);
         }
+
+        if (val == root->key) return root;
+
         if (val < root->key) {
             root->left = insert(root->left, val);
         }
@@ -129,9 +132,9 @@ class BST{
         return exists(root, num);
     }
 
-    long long next(long long num){
+    long long* next(long long num){
         Node* nd = next(root, num);
-        if (nd == nullptr) return -1; else return nd->key;
+        if (nd == nullptr) return nullptr; else return &nd->key;
     }
 
     long long prev(long long num){

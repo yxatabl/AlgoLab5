@@ -1,148 +1,173 @@
 #include <iostream>
-#include <cstring>
+#include <string>
 
 using namespace std;
 
-struct Node{
-    long long key;
-    Node *left = nullptr;
-    Node *right = nullptr;
-    Node *parent = nullptr;
+class BST{
+    struct Node {
+        long long key;
+        Node* left;
+        Node* right;
 
-    Node(long long num, Node* dad = nullptr){
-        key = num;
-        parent = dad;
-    }
-};
+        Node(long long val) {
+            key = val;
+            left = nullptr;
+            right = nullptr;
+        }
+    };
 
-Node* search(Node *x, long long k){
-    if (x == nullptr || k == x->key){
-        return x;
-    } else if (k < x->key){
-        return search(x->left, k);
-    } else {
-        return search(x->right, k);
-    }
-}
+    Node* root;
+        
+    Node* insert(Node* root, long long val) {
+        if (root == nullptr) {
+            return new Node(val);
+        }
 
-Node* insert(Node* node, long long key){
-    Node *parent = node;
+        if (val == root->key) return root;
 
-    if (node == nullptr){
-        Node *nd = new Node(key, parent);
-        return nd;
-    }
-    
-    if (key < node->key ){
-        node->left = insert(node->left, key);
-    } else {
-        node->right = insert(node->right, key);
-    }
-    return node;
-}
-
-Node* minValueNode(Node* node){
-    Node *current = node;
-
-    while (current->left != nullptr){
-        current = current->left;
-    }
-
-    return current;
-}
-
-Node* maxValueNode(Node* node){
-    Node *current = node;
-
-    while(current->right != nullptr){
-        current = current->right;
-    }
-
-    return current;
-}
-
-Node* deleteNode(Node* root, long long key){
-    if (root == nullptr){
+        if (val < root->key) {
+            root->left = insert(root->left, val);
+        }
+        else {
+            root->right = insert(root->right, val);
+        }
         return root;
     }
 
-    if (key < root->key){
-        root->left = deleteNode(root->left, key);
-    } else if (key > root->key){
-        root->right = deleteNode(root->right, key);
-    } else {
-        if (root->left == nullptr){
-            Node *temp = root->right;
-            root = nullptr;
-            return temp;
-        } else if (root->right == nullptr){
-            Node *temp = root->left;
-            root = nullptr;
-            return temp;
+    Node* search(Node* root, long long val) {
+        if (root == nullptr || root->key == val) {
+            return root;
+        }
+        if (val < root->key) {
+            return search(root->left, val);
+        }
+        else {
+            return search(root->right, val);
+        }
+    }
+
+    Node* minNode(Node* node) {
+        Node* current = node;
+        while (current && current->left != NULL) {
+            current = current->left;
+        }
+        return current;
+    }
+
+    Node* deleteNode(Node* root, long long key) {
+        if (root == nullptr) {
+            return root;
+        }
+        if (key < root->key) {
+            root->left = deleteNode(root->left, key);
+        } else if (key > root->key) {
+            root->right = deleteNode(root->right, key);
+        } else {
+            if (root->left == nullptr) {
+                Node* temp = root->right;
+                delete root;
+                return temp;
+            } else if (root->right == nullptr) {
+                Node* temp = root->left;
+                delete root;
+                return temp;
+            }
+            Node* temp = minNode(root->right);
+            root->key = temp->key;
+            root->right = deleteNode(root->right, temp->key);
+        }
+        return root;
+    }
+
+    Node* prev(Node* root, long long target) {
+        Node* el = nullptr;
+        Node* curr = root;
+
+        while (curr != nullptr) {
+            if (curr->key < target) {
+                el = curr;
+                curr = curr->right;
+            } else {
+                curr = curr->left;
+            }
+        }
+        return el;
+    }
+
+    Node* next(Node* root, long long target) {
+        Node* successor = nullptr;
+
+        while (root != nullptr) {
+            if (root->key > target) {
+                successor = root;
+                root = root->left;
+            } else {
+                root = root->right;
+            }
         }
 
-        Node *temp = minValueNode(root->right);
-        root->key = temp->key;
-        root->right = deleteNode(root->right, temp->key);
+        return successor;
     }
 
-    return root;
-}
-
-Node* next(Node* x){
-    if (x->right != nullptr){
-        return minValueNode(x->right);
+    bool exists(Node* root, long long target){
+        if (root == nullptr) return false;
+        if (root->key == target) return true;
+        if (root->key < target) return exists(root->right, target);
+        if (root->key > target) return exists(root->left, target);
     }
 
-    Node *y = x->parent;
-    while (y != nullptr && x == y->right){
-        x = y;
-        y = y->parent;
+    public:
+    BST(){
+        root = nullptr;
     }
 
-    return y;
-}
+    void add(long long num){
+        root = insert(root, num);
+    }
+
+    void remove(long long num){
+        root = deleteNode(root, num);
+    }
+
+    bool exists(long long num){
+        return exists(root, num);
+    }
+
+    long long* next(long long num){
+        Node* nd = next(root, num);
+        if (nd == nullptr) return nullptr; else return &nd->key;
+    }
+
+    long long* prev(long long num){
+        Node* nd = prev(root, num);
+        if (nd == nullptr) return nullptr; else return &nd->key;
+    }
+};
 
 int main(){
-    char command[10];
-    Node* root = nullptr;
-    root->key;
+    string command;
+    BST bst = BST();
+    long long x;
+    long long* res;
+
     while (cin >> command){
-        if (!strcmp(command, "insert")){
-            long long x;
-            cin >> x;
+        cin >> x;
 
-            root = insert(root, x);
-        } else if (!strcmp(command, "exists")){
-            long long x;
-            cin >> x;
-
-            Node* res = search(root, x);
-            if (res == nullptr) cout << "false"; else cout << "true"; 
+        if (command == "insert"){
+            bst.add(x);
+        } else if (command == "delete"){
+            bst.remove(x);
+        } else if (command == "exists"){
+            bst.exists(x) ? cout << "true" : cout << "false";
             cout << "\n";
-        } else if (!strcmp(command, "delete")){
-            long long x;
-            cin >> x;
-            root = deleteNode(root, x);
-        } else if (!strcmp(command, "next")){
-            long long x;
-            cin >> x;
-
-            Node* res = minValueNode(root);
-            Node* ma = maxValueNode(root);
-            while (res->key <= x && res != ma){
-                res = next(res);
-            }
-            if (res->key <= x){
-                cout << "none";
-            } else {
-                cout << res->key;
-            }
+        } else if (command == "next"){
+            res = bst.next(x);
+            res == nullptr ? cout << "none" : cout << *res;
             cout << "\n";
-
-        } else if (!strcmp(command, "prev")){
-            long long x;
-            cin >> x;
+        } else if (command == "prev"){
+            res = bst.prev(x);
+            res == nullptr ? cout << "none" : cout << *res;
+            cout << "\n";
         }
     }
 }
