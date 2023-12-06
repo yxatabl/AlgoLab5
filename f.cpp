@@ -4,11 +4,14 @@ using namespace std;
 
 int main(){
     long long n;
+    int sum = 0, checkSum = 0;
+    const int ostat = 1000000;
 
     cin >> n;
     long long mas[n];
     for (long long i = 0; i < n; i++){
         cin >> mas[i];
+        sum += mas[i]%ostat;
     }
 
     //preorder
@@ -24,6 +27,11 @@ int main(){
 
     for (long long i = 0; i < n; i++){
         cin >> mas[i];
+        checkSum += mas[i]%ostat; 
+    }
+    if (checkSum != sum){
+        cout << "NO";
+        return 0;
     }
     //inorder
     for (long long i = 1; i < n; i++){
@@ -33,8 +41,14 @@ int main(){
         }
     }
 
+    checkSum = 0;
     for (long long i = 0; i < n; i++){
         cin >> mas[i];
+        checkSum+=mas[i]%ostat;
+    }
+    if (checkSum != sum){
+        cout << "NO";
+        return 0;
     }
     //postorder
     for (long long i = n-1; i >= 1; i--){
